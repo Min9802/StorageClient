@@ -18,11 +18,11 @@ class StorageClient
     private $option = null;
     public function __construct()
     {
-        $this->option = config('storage.option');
-        $this->auth = config('storage.token');
-        $this->client = config('storage.client.uri');
-        $this->client_id = config('storage.client.client_id');
-        $this->secret = config('storage.client.client_secret');
+        $this->option = config('client.option');
+        $this->auth = config('client.token');
+        $this->client = config('client.client.uri');
+        $this->client_id = config('client.client.client_id');
+        $this->secret = config('client.client.client_secret');
         $this->redis = Redis::connection();
         $this->token = $this->redis->get('access_token');
         if (!$this->token) {
