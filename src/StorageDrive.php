@@ -10,22 +10,107 @@ class StorageDrive
         $this->client = $client;
         $this->option = $option;
     }
+    /**
+     * folder
+     */
+    public function listFolder()
+    {
+        $response = $this->client->get("folder", "list");
+        return $response;
+    }
+    public function createFolder(string $directory)
+    {
+        $response = $this->client->post("folder", "create", [
+            'name' => $directory,
+        ]);
+        return $response;
+
+    }
+    public function renameFolder($directory, $newname)
+    {
+        $response = $this->client->post("folder", "rename", [
+            "name" => $directory,
+            'newname' => $newname,
+        ]);
+        return $response;
+
+    }
+    public function getfileFolder($directory)
+    {
+        $response = $this->client->post("folder", "getfile", [
+            'name' => $directory,
+        ]);
+        return $response;
+    }
+    public function deleteFolder(string $directory)
+    {
+        $response = $this->client->post("folder", "delete", [
+            'name' => $directory,
+        ]);
+        return $response;
+    }
+
+    public function FolderExists(string $directory)
+    {
+        $response = $this->client->post("folder", "exists", [
+            'name' => $directory,
+        ]);
+        return $response;
+    }
+
+    /**
+     * file
+     */
+    public function renameFile($path, $newname)
+    {
+        $response = $this->client->post("file", "rename", [
+            'path' => $path,
+            'newname' => $newname,
+        ]);
+        return $response;
+    }
+    public function moveFile($path, $folder)
+    {
+        $response = $this->client->post("file", "move", [
+            'path' => $path,
+            'newfolder' => $folder,
+        ]);
+        return $response;
+    }
+    /**
+     *
+     */
+    public function uploadFile($folder, $file)
+    {
+
+        $response = $this->client->post("file", "upload", [
+            'folder' => $folder,
+            'file' => $file,
+        ]);
+        return $response;
+    }
+    public function updateFile($folder, $file, $id)
+    {
+        $response = $this->client->post("file", "update", [
+            'folder' => $folder,
+            'file' => $file,
+        ], $id);
+        return $response;
+    }
     public function fileExists($path)
     {
         return true;
     }
     public function getId($path)
     {
-        $name = explode('/', $path)[1];
-        return $this->client->post( $name, "file", "get" , [
-            'name' => $name,
+        return $this->client->post("file", "get", [
+            'path' => $path,
         ]);
     }
     public function getFile($path)
     {
-        $name = explode('/', $path)[1];
-        return $this->client->post( $name, "file", "get" , [
-            'name' => $name,
+        return $this->client->post("file", "get", [
+            'path' => $path,
         ]);
     }
     public function restoreFile($id)
@@ -38,16 +123,14 @@ class StorageDrive
     }
     public function url($path)
     {
-        $name = explode('/', $path)[1];
-        return $this->client->post( $path, "file", "get" , [
-            'name' => $name,
+        return $this->client->post("file", "get", [
+            'path' => $path,
         ]);
     }
     public function read($path)
     {
-        $name = explode('/', $path)[1];
-        return $this->client->post($path, "file", "get" , [
-            'name' => $name,
+        return $this->client->post("file", "get", [
+            'path' => $path,
         ]);
     }
     public function getFileStream(string $path)
@@ -60,7 +143,7 @@ class StorageDrive
 
     public function write(string $path, string $contents)
     {
-        $response =  $this->client->post($path, "file", "upload", [
+        $response = $this->client->post($path, "file", "upload", [
             'file' => $contents,
         ]);
         return $response;
@@ -68,7 +151,7 @@ class StorageDrive
 
     public function writeStream(string $path, $resource)
     {
-        $response =  $this->client->post("file", "upload", [
+        $response = $this->client->post("file", "upload", [
             'path' => $path,
             'file' => $resource,
         ]);
@@ -97,14 +180,14 @@ class StorageDrive
     public function rename(string $path, string $newPath): void
     {
         $this->client->put($path, "file", "rename", [
-            'new_path' => $newPath
+            'new_path' => $newPath,
         ]);
     }
 
     public function copy(string $path, string $newPath): void
     {
         $this->client->put($path, "file", "copy", [
-           'new_path' => $newPath,
+            'new_path' => $newPath,
         ]);
     }
 
@@ -123,7 +206,7 @@ class StorageDrive
 
     public function getLastModified(string $path)
     {
-        $response = $this->client->get($path,"file", "modified");
+        $response = $this->client->get($path, "file", "modified");
         $timestamp = $response->getBody()->getContents();
         return strtotime($timestamp);
     }
@@ -148,33 +231,9 @@ class StorageDrive
         ]);
         return json_decode($response->getBody()->getContents(), true);
     }
-
-    public function createDirectory(string $directory): void
-    {
-        $this->client->post("folder","create", $directory);
-    }
-
-    public function deleteDirectory(string $directory): void
-    {
-        $this->client->delete("folder", "delete", $directory);
-    }
-
-    public function directoryExists(string $directory): bool
-    {
-        try {
-            $this->client->get("folder", "exists", $directory);
-            return true;
-        } catch (\GuzzleHttp\Exception\ClientException$e) {
-            if ($e->getResponse()->getStatusCode() === 404) {
-                return false;
-            }
-            throw $e;
-        }
-    }
-
     public function move(string $source, string $destination, array $config = []): void
     {
-        $this->client->put($source,"file", "move", [
+        $this->client->put($source, "file", "move", [
             'new_path' => $destination,
         ]);
     }

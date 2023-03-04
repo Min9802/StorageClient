@@ -1,27 +1,39 @@
 # StorageClient
+
 StorageClient for Min/Storage
-## Require 
-- PHP 8.*+
+
+## Require
+
+- PHP 8.\*+
 - Composer
 - Laravel
 
-## Install 
+## Install
+
 - install package composer
+
 ```
 composer require Min/StorageClient
 ```
+
 ## Publish Config
+
 ```
 php artisan vendor:publish --tag=config
 ```
+
 ## Config ENV
+
 ```
 STORAGE_SERVICE_CLIENT_URI=http://localhost:8001
 STORAGE_SERVICE_CLIENT_ID=978b4967-7174-4d89-a7ad-bc288a63099b
 STORAGE_SERVICE_CLIENT_SECRET=wtW2i7lb8U5QZSBWdGnO65clXiib7bZAAW8tCyib
 ```
+
 ## Config file
+
 - add disk config filesystem
+
 ```
 'msv' => [
             'driver' => 'msv',
@@ -31,7 +43,9 @@ STORAGE_SERVICE_CLIENT_SECRET=wtW2i7lb8U5QZSBWdGnO65clXiib7bZAAW8tCyib
             'scope' => 'storage',
         ],
 ```
+
 - client config
+
 ```
 return [
     'token' => '/api/oauth/token',
@@ -40,6 +54,8 @@ return [
             'list' => '/api/storage/client/file/list/',
             'get' => '/api/storage/client/file/get/',
             'upload' => '/api/storage/client/file/upload/',
+            'rename' => '/api/storage/client/file/rename/',
+            'move' => '/api/storage/client/file/move/',
             'update' => '/api/storage/client/file/update/',
             'delete' => '/api/storage/client/file/delete/',
             'forcedelete' => '/api/storage/client/file/forcedelete/',
@@ -52,65 +68,159 @@ return [
         ],
         'folder' => [
             'list' => '/api/storage/client/folder/list/',
+            'exists' => '/api/storage/client/folder/exists/',
             'create' => '/api/storage/client/folder/create/',
-            'delete' => '/api/storage/client/folder/delete/',
             'rename' => '/api/storage/client/folder/rename/',
+            'getfile' => '/api/storage/client/folder/getfile/',
+            'delete' => '/api/storage/client/folder/delete/',
         ],
     ],
-    'client' => [
+    'config' => [
         'uri' => config('system.msv_client', env('STORAGE_SERVICE_CLIENT_URI')),
         'client_id' => config('system.msv_client_id', env('STORAGE_SERVICE_CLIENT_ID')),
         'client_secret' => config('system.msv_client_secret', env('STORAGE_SERVICE_CLIENT_SECRET')),
     ],
 ];
+
 ```
-## Register Provider 
+
+## Register Provider
+
 - add provider in ./config/app.php
+
 ```
 Min\StorageClient\Providers\StorageProvider::class,
 ```
+
 ## Use with Illuminate\Support\Facades\Storage
-- put 
+
+### use with file
+- get file info
+method getInfo($filepath) 
+-- filepath is the path to the file
+
 ```
+    $filepath = "image/image1.jpg";
+    $fileInfo =  Storage::disk('msv')->getInfo($filepath);
+
+- uploadFile
+method uploadFile($folder,$file)
+-- folder is the folder to save the file
+-- file is the file upload from request
+
+```
+use Illuminate\Http\Request;
 public function store(Request $request)
 {
     $file = $request->file('file');
     $folder = $request->folder;
-    $StorageMSV = Storage::disk('msv');
-
-    $path = $StorageMSV->put($path, $file); //return path
-    $url = $StorageMSV->url($path); //return url
+    $fileInfo =  Storage::disk('msv')->uploadFile($folder, $file); //return file uploaded info
 }
 ```
-- get file info
+- updateFile
+method updateFile($path,$file, $id)
+-- path is the path of file uploaded
+-- file is the file upload from request
+-- id is id file uploaded
+
 ```
-    $filepath = "image/file.jpg";
-    $StorageMSV = Storage::disk('msv');
-    
-    $fileInfo = $StorageMSV->getdata($filepath);
-    
+ $path  = "image/image1.jpg";
+ $id_file =  Storage::disk('msv')->getId($path); //return id file uploaded
+ $file = $request->file('file');
+ $fileInfo = Storage::disk('msv')->updateFile($path, $file, $id);
+```
+
+- renameFile
+method renameFile($path,$newname)
+-- path is the path of file uploaded
+-- newname is the new name file change
+```
+ $path  = "image/image1.jpg";
+ $newname = "image2.jpg";
+ $fileInfo = Storage::disk('msv')->renameFile($path, $newname);
+```
+- moveFile
+method moveFile($path,$newfolder)
+-- path is the path of file uploaded
+-- newfolder is the new folder file change
+```
+ $path  = "image/image1.jpg";
+ $newfolder = "images";
+ $fileInfo = Storage::disk('msv')->moveFile($path, $newfolder);
+```
+```
+
+- delete
+method delete($id)
+-- id is the id of file uploaded
+```
+$filepath = "image/image1.jpg";
+$file_id =  Storage::disk('msv')->getId($filepath);
+return  Storage::disk('msv')->delete($file_id);
+```
+
+- restore
+method restore($id)
+-- id is the id of file uploaded
+```
+$filepath = "image/image1.jpg";
+$file_id =  Storage::disk('msv')->getId($filepath);
+return  Storage::disk('msv')->restore($file_id);
+```
+
+- forceDelete
+method forceDelete($id)
+-- id is the id of file uploaded
+```
+$filepath = "image/image1.jpg";
+$file_id =  Storage::disk('msv')->getId($filepath);
+return  Storage::disk('msv')->forceDelete($file_id);
+```
+
+### use with folder
+
+- list
+method listFolder()
+```
+    $listFolder = Storage::disk('msv')->listFolder();
+```
+
+- exists
+method forceDelete($folderName)
+-- folderName is the folder name need check
+```
+$folderName = "image";
+$FolderExists = Storage::disk('msv')->FolderExists($folderName);
+```
+- create
+method createFolder($folderName)
+-- folderName is the folder name to save
+```
+$folderName = "image";
+$folderCreated = Storage::disk('msv')->createFolder($folderName);
+```
+- rename
+method renameFolder($folderName, $newFolderName)
+-- folderName is the folder name need change
+-- newFolderName is the new folder name will change
+```
+$folderName = "image";
+$newFolderName = "images";
+$folderRename = Storage::disk('msv')->renameFolder($folderName, $newFolderName);
+```
+- getfile
+method getfileFolder($folderName)
+-- folderName is the folder name need check
+
+```
+$folderName = "image";
+$folderRename = Storage::disk('msv')->getfileFolder($folderName);
 ```
 - delete
+method getfileFolder($folderName)
+-- folderName is the folder name need delete
+-- is method can't undo
 ```
-$filepath = "image/file.jpg";
-$StorageMSV = Storage::disk('msv');
-
-$file_id = $StorageMSV->getId($filepath);
-return $StorageMSV->delete($file_id);
-```
-- restore
-```
-$filepath = "image/file.jpg";
-$StorageMSV = Storage::disk('msv');
-
-$file_id = $StorageMSV->getId($filepath);
-return $StorageMSV->restore($file_id);
-```
-- force Delete
-```
-$filepath = "image/file.jpg";
-$StorageMSV = Storage::disk('msv');
-
-$file_id = $StorageMSV->getId($filepath);
-return $StorageMSV->forceDelete($file_id);
+$folderName = "image";
+$folderRename = Storage::disk('msv')->getfileFolder($folderName);
 ```

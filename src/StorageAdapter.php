@@ -44,6 +44,60 @@ class StorageAdapter  implements FilesystemAdapter, StorageDriveAdapter
         }
 
     }
+    /**
+     * folder
+     */
+    public function listFolder()
+    {
+        $response = $this->drive->listFolder();
+        $content = $response['content'];
+        return $content;
+    }
+    public function createFolder($directory)
+    {
+        $response = $this->drive->createFolder($directory);
+        $content = $response['content'];
+        return $content;
+    }
+    public function FolderExists($directory)
+    {
+        $response = $this->drive->FolderExists($directory);
+        $content = $response['message'];
+        return $content;
+    }
+    public function deleteFolder($directory)
+    {
+        $response = $this->drive->deleteFolder($directory);
+        $content = $response['message'];
+        return $content;
+    }
+    public function renameFolder($name, $newName)
+    {
+        $response = $this->drive->renameFolder($name, $newName);
+        $content = $response['content'];
+        return $content;
+    }
+    public function getfileFolder($name)
+    {
+        $response = $this->drive->getfileFolder($name);
+        $content = $response['content'];
+        return $content;
+    }
+    /**
+     * file
+     */
+    public function uploadFile($folder, $file)
+    {
+        $response = $this->drive->uploadFile($folder, $file);
+        $content = $response['content'];
+        return $content;
+    }
+    public function updateFile($folder, $file, $id)
+    {
+        $response = $this->drive->updateFile($folder, $file, $id);
+        $content = $response['content'];
+        return $content;
+    }
     public function getUrl($path)
     {
         $response = $this->drive->url($path);
@@ -64,6 +118,18 @@ class StorageAdapter  implements FilesystemAdapter, StorageDriveAdapter
         $content = $response['content'];
         return $content;
     }
+    public function renameFile($path, $newName)
+    {
+        $response = $this->drive->renameFile($path, $newName);
+        $content = $response['content'];
+        return $content;
+    }
+    public function moveFile($path, $newPath)
+    {
+        $response = $this->drive->moveFile($path, $newPath);
+        $content = $response['content'];
+        return $content;
+    }
     public function restore($id)
     {
         $this->drive->restoreFile($id);
@@ -72,6 +138,9 @@ class StorageAdapter  implements FilesystemAdapter, StorageDriveAdapter
     {
         $this->drive->forceDeleteFile($id);
     }
+    /**
+     *
+     */
     public function fileExists(string $path): bool
     {
         return $this->drive->fileExists($path);
@@ -79,7 +148,7 @@ class StorageAdapter  implements FilesystemAdapter, StorageDriveAdapter
 
     public function directoryExists(string $directory): bool
     {
-        return $this->drive->directoryExists($directory);
+        return $this->drive->FolderExists($directory);
     }
 
     public function write(string $path, string $contents, Config $config): void
@@ -133,12 +202,12 @@ class StorageAdapter  implements FilesystemAdapter, StorageDriveAdapter
 
     public function deleteDirectory(string $directory): void
     {
-        $this->drive->deleteDirectory($directory);
+        $this->drive->deleteFolder($directory);
     }
 
     public function createDirectory(string $directory, Config $config): void
     {
-        $this->drive->createDirectory($directory);
+        $this->drive->createFolder($directory);
     }
 
     public function setVisibility(string $path, string $visibility): void

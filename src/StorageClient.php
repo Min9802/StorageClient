@@ -20,23 +20,23 @@ class StorageClient
     {
         $this->option = config('client.option');
         $this->auth = config('client.token');
-        $this->client = config('client.client.uri');
-        $this->client_id = config('client.client.client_id');
-        $this->secret = config('client.client.client_secret');
+        $this->client = config('client.config.uri');
+        $this->client_id = config('client.config.client_id');
+        $this->secret = config('client.config.client_secret');
         $this->redis = Redis::connection();
         $this->token = $this->redis->get('access_token');
         if (!$this->token) {
             $this->Oauth();
-        }else{
+        } else {
             $expires = $this->redis->get('expires');
-            $now =  Carbon::now();
+            $now = Carbon::now();
             $expires_parse = Carbon::createFromTimestamp($expires);
-            if($now > $expires_parse) {
+            if ($now > $expires_parse) {
                 $this->redis->delete('access_token');
                 $this->redis->delete('expires');
-                $this->token =  null;
+                $this->token = null;
                 $this->Oauth();
-            }else{
+            } else {
                 $this->CheckToken();
             }
         }
@@ -77,7 +77,7 @@ class StorageClient
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $this->token,
         ])->get($this->client . '/api/check_token');
-        if(!$response->ok()){
+        if (!$response->ok()) {
             $this->Oauth();
         }
     }
@@ -93,42 +93,51 @@ class StorageClient
     public function post($type, $uri, $body = null, $params = null)
     {
         if ($uri == 'upload' || $uri == 'update') {
-            $file = stream_get_contents($body['file']);
-            $name = explode('/', $file)[1];
-            $path = $body['path'];
+            $folder = $body['folder'];
+            $file = $body['file'];
+            $name = $file->getClientOriginalName();
             $bodyData = [
-                'path' => $path,
-                'file' => $file,
+                'folder' => $folder,
             ];
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->token,
-            ])->attach('file', $file, $name)
-              ->post($this->client . $this->option[$type][$uri] . $params, $bodyData);
+            ])->attach('file', file_get_contents($file), $name)
+                ->post($this->client . $this->option[$type][$uri] . $params, $bodyData);
         } else {
+
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->Oauth(),
             ])
-            ->withBody($body)
-            ->post($this->client . $this->option[$type][$uri] . $params);
+                ->post($this->client . $this->option[$type][$uri] . $params, $body);
+
         }
         return $this->handleResponse($response);
     }
-    public function put($path, $name = null, $type, $uri, $data = null, $params = null)
+    public function put($type, $uri, $body = null, $params = null)
     {
 
         if ($uri == 'upload' || $uri == 'update') {
-            $file = stream_get_contents($data['file']);
+            $folder = $body['folder'];
+            $file = $body['file'];
+            $name = $file->getClientOriginalName();
+            $bodyData = [
+                'folder' => $folder,
+            ];
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->token,
-            ])->attach('file', $file, $name)->put($this->client . $this->option[$type][$uri] . $params);
+            ])->attach('file', file_get_contents($file), $name)
+                ->put($this->client . $this->option[$type][$uri] . $params, $bodyData);
         } else {
+
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->token,
-            ])->put($this->client . $this->option[$type][$uri], $data);
+                'Authorization' => 'Bearer ' . $this->Oauth(),
+            ])
+                ->put($this->client . $this->option[$type][$uri] . $params, $body);
+
         }
         return $this->handleResponse($response);
     }
