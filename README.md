@@ -96,8 +96,8 @@ Min\StorageClient\Providers\StorageProvider::class,
 
 ### use with file
 - get file info
-<sub>method getInfo($filepath) 
-<sub>filepath is the path to the file 
+<sub>method getInfo($filepath) __
+<sub>filepath is the path to the file __
 
 ```
     $filepath = "image/image1.jpg";
@@ -105,8 +105,8 @@ Min\StorageClient\Providers\StorageProvider::class,
 ```
 - uploadFile
 method uploadFile($folder,$file)
->folder is the folder to save the file
->file is the file upload from request
+>folder is the folder to save the file__
+>file is the file upload from request__
 
 ```
 use Illuminate\Http\Request;
@@ -119,9 +119,9 @@ public function store(Request $request)
 ```
 - updateFile
 method updateFile($path,$file, $id)
->path is the path of file uploaded
->file is the file upload from request
->id is id file uploaded
+>path is the path of file uploaded__
+>file is the file upload from request__
+>id is id file uploaded__
 
 ```
  $path  = "image/image1.jpg";
@@ -132,8 +132,8 @@ method updateFile($path,$file, $id)
 
 - renameFile
 method renameFile($path,$newname)
->path is the path of file uploaded
->newname is the new name file change
+>path is the path of file uploaded__
+>newname is the new name file change__
 ```
  $path  = "image/image1.jpg";
  $newname = "image2.jpg";
@@ -141,8 +141,8 @@ method renameFile($path,$newname)
 ```
 - moveFile
 method moveFile($path,$newfolder)
->path is the path of file uploaded
->newfolder is the new folder file change
+>path is the path of file uploaded__
+>newfolder is the new folder file change__
 ```
  $path  = "image/image1.jpg";
  $newfolder = "images";
@@ -152,7 +152,7 @@ method moveFile($path,$newfolder)
 
 - delete
 method delete($id)
->id is the id of file uploaded
+>id is the id of file uploaded__
 ```
 $filepath = "image/image1.jpg";
 $file_id =  Storage::disk('msv')->getId($filepath);
@@ -161,7 +161,7 @@ return  Storage::disk('msv')->delete($file_id);
 
 - restore
 method restore($id)
->id is the id of file uploaded
+>id is the id of file uploaded__
 ```
 $filepath = "image/image1.jpg";
 $file_id =  Storage::disk('msv')->getId($filepath);
@@ -170,7 +170,7 @@ return  Storage::disk('msv')->restore($file_id);
 
 - forceDelete
 method forceDelete($id)
->id is the id of file uploaded
+>id is the id of file uploaded__
 ```
 $filepath = "image/image1.jpg";
 $file_id =  Storage::disk('msv')->getId($filepath);
@@ -187,22 +187,22 @@ method listFolder()
 
 - exists
 method forceDelete($folderName)
->folderName is the folder name need check
+>folderName is the folder name need check__
 ```
 $folderName = "image";
 $FolderExists = Storage::disk('msv')->FolderExists($folderName);
 ```
 - create
 method createFolder($folderName)
->folderName is the folder name to save
+>folderName is the folder name to save__
 ```
 $folderName = "image";
 $folderCreated = Storage::disk('msv')->createFolder($folderName);
 ```
 - rename
 method renameFolder($folderName, $newFolderName)
->folderName is the folder name need change
->newFolderName is the new folder name will change
+>folderName is the folder name need change__
+>newFolderName is the new folder name will change__
 ```
 $folderName = "image";
 $newFolderName = "images";
@@ -210,7 +210,7 @@ $folderRename = Storage::disk('msv')->renameFolder($folderName, $newFolderName);
 ```
 - getfile
 method getfileFolder($folderName)
->folderName is the folder name need check
+>folderName is the folder name need check__
 
 ```
 $folderName = "image";
@@ -218,8 +218,8 @@ $folderRename = Storage::disk('msv')->getfileFolder($folderName);
 ```
 - delete
 method getfileFolder($folderName)
->folderName is the folder name need delete
->is method can't undo
+>folderName is the folder name need delete__
+>is method can't undo__
 ```
 $folderName = "image";
 $folderRename = Storage::disk('msv')->getfileFolder($folderName);
